@@ -16,3 +16,75 @@
 오후 8:40:53 [vite] page reload src/types.ts
 오후 8:41:14 [vite] hmr update /src/App.tsx, /src/index.css
 오후 8:55:09 [vite] hmr update /src/App.tsx, /src/index.css
+오후 9:00:20 [vite] hmr update /src/App.tsx, /src/index.css
+오후 9:00:28 [vite] hmr update /src/App.tsx, /src/index.css
+오후 9:00:42 [vite] hmr update /src/App.tsx, /src/index.css
+오후 9:01:16 [vite] hmr update /src/App.tsx, /src/index.css
+오후 9:01:16 [vite] Internal server error: /Users/myeongseonjeong/source/agentic-researcher/frontend/src/App.tsx: Adjacent JSX elements must be wrapped in an enclosing tag. Did you want a JSX fragment <>...</>? (349:14)
+
+  347 |                   </div>
+  348 |                 </CardContent>
+> 349 |               </Card>
+      |               ^
+  350 |             )}
+  351 |
+  352 |             {/* Key Insights */}
+  Plugin: vite:react-babel
+  File: /Users/myeongseonjeong/source/agentic-researcher/frontend/src/App.tsx:349:14
+  347|                    </div>
+  348|                  </CardContent>
+  349|                </Card>
+     |                ^
+  350|              )}
+  351|  
+      at constructor (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:367:19)
+      at TypeScriptParserMixin.raise (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:6624:19)
+      at TypeScriptParserMixin.jsxParseElementAt (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:4771:18)
+      at TypeScriptParserMixin.jsxParseElement (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:4778:17)
+      at TypeScriptParserMixin.parseExprAtom (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:4788:19)
+      at TypeScriptParserMixin.parseExprSubscripts (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOps (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10968:23)
+      at TypeScriptParserMixin.parseMaybeConditional (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10945:23)
+      at TypeScriptParserMixin.parseMaybeAssign (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10895:21)
+      at /Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:9828:39
+      at TypeScriptParserMixin.tryParse (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:6932:20)
+      at TypeScriptParserMixin.parseMaybeAssign (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:9828:18)
+      at /Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10864:39
+      at TypeScriptParserMixin.allowInAnd (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:12500:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10864:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:12567:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11747:28)
+      at TypeScriptParserMixin.parseExprAtom (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11395:23)
+      at TypeScriptParserMixin.parseExprAtom (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:4793:20)
+      at TypeScriptParserMixin.parseExprSubscripts (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOpBaseRightExpr (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11050:34)
+      at TypeScriptParserMixin.parseExprOpRightExpr (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11045:21)
+      at TypeScriptParserMixin.parseExprOp (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11011:27)
+      at TypeScriptParserMixin.parseExprOp (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:9365:18)
+      at TypeScriptParserMixin.parseExprOps (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10972:17)
+      at TypeScriptParserMixin.parseMaybeConditional (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10945:23)
+      at TypeScriptParserMixin.parseMaybeAssign (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10895:21)
+      at TypeScriptParserMixin.parseMaybeAssign (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:9839:20)
+      at TypeScriptParserMixin.parseExpressionBase (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10848:23)
+      at /Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10844:39
+      at TypeScriptParserMixin.allowInAnd (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:12500:12)
+      at TypeScriptParserMixin.parseExpression (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10844:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:4661:31)
+      at TypeScriptParserMixin.jsxParseElementAt (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:4740:36)
+      at TypeScriptParserMixin.jsxParseElement (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:4778:17)
+      at TypeScriptParserMixin.parseExprAtom (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:4788:19)
+      at TypeScriptParserMixin.parseExprSubscripts (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11145:23)
+      at TypeScriptParserMixin.parseUpdate (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11130:21)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:11110:23)
+      at TypeScriptParserMixin.parseMaybeUnary (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:9890:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10963:61)
+      at TypeScriptParserMixin.parseExprOps (/Users/myeongseonjeong/source/agentic-researcher/frontend/node_modules/@babel/parser/lib/index.js:10968:23)
+오후 9:01:22 [vite] hmr update /src/App.tsx, /src/index.css

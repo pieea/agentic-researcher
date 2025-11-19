@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, Loader2, TrendingUp, AlertCircle } from 'lucide-react'
+import { Search, Loader2, TrendingUp, AlertCircle, ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
 import { createResearchRequest, streamResearchProgress, getResearchResult } from './api/research'
 import { ResearchResult, ResearchStatus, ProgressUpdate } from './types'
 import { ClusterMap } from './components/ClusterMap'
@@ -15,6 +15,7 @@ function App() {
   const [result, setResult] = useState<ResearchResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [progress, setProgress] = useState<ProgressUpdate | null>(null)
+  const [showTavilyResults, setShowTavilyResults] = useState(false)
 
   const handleSearch = async () => {
     if (!query.trim()) return
@@ -101,15 +102,18 @@ function App() {
                 onClick={handleSearch}
                 disabled={isLoading || !query.trim()}
                 size="lg"
-                className="px-8"
+                className="px-10 h-12 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     분석 중
                   </>
                 ) : (
-                  '분석 시작'
+                  <>
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    분석 시작
+                  </>
                 )}
               </Button>
             </div>
@@ -280,18 +284,31 @@ function App() {
             {/* Tavily 원본 검색 결과 */}
             {result.raw_results && result.raw_results.length > 0 && (
               <Card className="shadow-lg border-blue-200">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <span className="text-2xl">🔍</span>
-                    Tavily 검색 결과
-                  </CardTitle>
-                  <CardDescription>
-                    Tavily가 찾은 {result.raw_results.length}개의 원본 검색 결과 (관련도순)
-                  </CardDescription>
+                <CardHeader
+                  className="cursor-pointer hover:bg-blue-50/50 transition-colors"
+                  onClick={() => setShowTavilyResults(!showTavilyResults)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <span className="text-2xl">🔍</span>
+                        Tavily 검색 결과
+                      </CardTitle>
+                      <CardDescription>
+                        Tavily가 찾은 {result.raw_results.length}개의 원본 검색 결과 (관련도순)
+                      </CardDescription>
+                    </div>
+                    {showTavilyResults ? (
+                      <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </div>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                    {result.raw_results.map((item, idx) => (
+                {showTavilyResults && (
+                  <CardContent>
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                      {result.raw_results.map((item, idx) => (
                       <div key={idx} className="p-4 rounded-lg bg-blue-50/50 border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all">
                         <div className="flex items-start justify-between gap-3 mb-2">
                           <a
@@ -326,9 +343,10 @@ function App() {
                           </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
+                      ))}
+                    </div>
+                  </CardContent>
+                )}
               </Card>
             )}
 
