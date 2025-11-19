@@ -99,6 +99,58 @@ function App() {
                 )}
               </Button>
             </div>
+
+            {/* Compact Progress Bar */}
+            {isLoading && progress && (
+              <div className="mt-4 pt-4 border-t">
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    {progress.node === 'search' && (
+                      <>
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center animate-pulse">
+                          <span className="text-lg">🔍</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-sm text-blue-700">검색 단계</div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {progress.message || '검색 중...'}
+                            {progress.results_count && ` (${progress.results_count}개 발견)`}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    {progress.node === 'analysis' && (
+                      <>
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center animate-pulse">
+                          <span className="text-lg">📊</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-sm text-green-700">분석 단계</div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {progress.message || '데이터 분석 중...'}
+                            {progress.clusters_count && ` (${progress.clusters_count}개 주제)`}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                    {progress.node === 'insight' && (
+                      <>
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center animate-pulse">
+                          <span className="text-lg">💡</span>
+                        </div>
+                        <div className="min-w-0">
+                          <div className="font-semibold text-sm text-violet-700">인사이트 생성 단계</div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {progress.message || '인사이트 생성 중...'}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <Loader2 className="flex-shrink-0 h-4 w-4 animate-spin text-primary" />
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
