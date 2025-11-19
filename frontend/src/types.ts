@@ -25,10 +25,20 @@ export interface InsightInfo {
   total_documents: number
 }
 
+export interface SearchResult {
+  title: string
+  url: string
+  content: string
+  score: number
+  published_date?: string
+  source: string
+}
+
 export interface ResearchResult {
   request_id: string
   query: string
   status: string
+  raw_results: SearchResult[]
   clusters: ClusterInfo[]
   insights?: InsightInfo
   created_at: string

@@ -113,58 +113,6 @@ function App() {
                 )}
               </Button>
             </div>
-
-            {/* Compact Progress Bar */}
-            {isLoading && progress && currentNode && (
-              <div className="mt-4 pt-4 border-t">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 min-w-0 flex-1">
-                    {currentNode === 'search' && (
-                      <>
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center animate-pulse">
-                          <span className="text-lg">🔍</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-semibold text-sm text-blue-700">검색 단계</div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            {progress.message || '검색 중...'}
-                            {progress.results_count && ` (${progress.results_count}개 발견)`}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    {currentNode === 'analysis' && (
-                      <>
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center animate-pulse">
-                          <span className="text-lg">📊</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-semibold text-sm text-green-700">분석 단계</div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            {progress.message || '데이터 분석 중...'}
-                            {progress.clusters_count && ` (${progress.clusters_count}개 주제)`}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                    {currentNode === 'insight' && (
-                      <>
-                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center animate-pulse">
-                          <span className="text-lg">💡</span>
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-semibold text-sm text-violet-700">인사이트 생성 단계</div>
-                          <div className="text-xs text-muted-foreground truncate">
-                            {progress.message || '인사이트 생성 중...'}
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  <Loader2 className="flex-shrink-0 h-4 w-4 animate-spin text-primary" />
-                </div>
-              </div>
-            )}
           </CardContent>
         </Card>
 
@@ -286,6 +234,103 @@ function App() {
                 {result.clusters.length}개 클러스터
               </Badge>
             </div>
+
+            {/* 전체 출처 목록 */}
+            <Card className="shadow-lg border-slate-200">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <span className="text-2xl">📚</span>
+                  참고 출처
+                </CardTitle>
+                <CardDescription>
+                  분석에 사용된 {result.clusters.reduce((total, c) => total + (c.documents?.length || 0), 0)}개의 원본 문서
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
+                  {result.clusters.flatMap(cluster =>
+                    (cluster.documents || []).map((doc, idx) => (
+                      <div key={`${cluster.id}-${idx}`} className="p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-primary/50 hover:shadow-sm transition-all">
+                        <a
+                          href={doc.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium text-primary hover:underline line-clamp-2 block mb-2"
+                        >
+                          {doc.title || '제목 없음'}
+                        </a>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground truncate">
+                            <span>🔗</span>
+                            <span className="truncate">
+                              {doc.source || (() => {
+                                try { return new URL(doc.url).hostname } catch { return doc.url }
+                              })()}
+                            </span>
+                          </div>
+                          <Badge variant="outline" className="text-xs shrink-0">{cluster.name}</Badge>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Tavily 원본 검색 결과 */}
+            {result.raw_results && result.raw_results.length > 0 && (
+              <Card className="shadow-lg border-blue-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <span className="text-2xl">🔍</span>
+                    Tavily 검색 결과
+                  </CardTitle>
+                  <CardDescription>
+                    Tavily가 찾은 {result.raw_results.length}개의 원본 검색 결과 (관련도순)
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                    {result.raw_results.map((item, idx) => (
+                      <div key={idx} className="p-4 rounded-lg bg-blue-50/50 border border-blue-200 hover:border-blue-400 hover:shadow-md transition-all">
+                        <div className="flex items-start justify-between gap-3 mb-2">
+                          <a
+                            href={item.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-base font-semibold text-blue-700 hover:text-blue-900 hover:underline line-clamp-2 flex-1"
+                          >
+                            {item.title}
+                          </a>
+                          <Badge variant="secondary" className="shrink-0">
+                            #{idx + 1}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-gray-700 line-clamp-3 mb-3">
+                          {item.content}
+                        </p>
+                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            <span>🔗</span>
+                            <span className="truncate max-w-[200px]">{item.source}</span>
+                          </div>
+                          {item.published_date && (
+                            <div className="flex items-center gap-1.5">
+                              <span>📅</span>
+                              <span>{new Date(item.published_date).toLocaleDateString('ko-KR')}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1.5">
+                            <span>⭐</span>
+                            <span>{(item.score * 100).toFixed(0)}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Key Insights */}
             {result.insights && (
@@ -439,23 +484,28 @@ function App() {
 
                       {/* Documents */}
                       <div>
-                        <p className="text-sm font-semibold text-muted-foreground mb-2">주요 문서</p>
-                        <div className="space-y-2">
-                          {cluster.documents.slice(0, 3).map((doc, i) => (
-                            <div key={i} className="text-sm">
-                              <a
-                                href={doc.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-primary hover:underline line-clamp-2"
-                              >
-                                {doc.title}
-                              </a>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                {doc.source}
-                              </p>
-                            </div>
-                          ))}
+                        <p className="text-sm font-semibold text-muted-foreground mb-2">주요 출처</p>
+                        <div className="space-y-3">
+                          {cluster.documents && cluster.documents.length > 0 ? (
+                            cluster.documents.slice(0, 3).map((doc, i) => (
+                              <div key={i} className="p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-primary/50 transition-colors">
+                                <a
+                                  href={doc.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm font-medium text-primary hover:underline line-clamp-2 block mb-1"
+                                >
+                                  {doc.title || '제목 없음'}
+                                </a>
+                                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                  <span>🔗</span>
+                                  <span className="truncate">{doc.source || doc.url}</span>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <p className="text-xs text-muted-foreground italic">출처 정보 없음</p>
+                          )}
                         </div>
                       </div>
                     </CardContent>

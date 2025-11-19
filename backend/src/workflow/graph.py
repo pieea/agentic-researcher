@@ -30,8 +30,18 @@ def create_research_workflow() -> StateGraph:
                 state["query"],
                 max_results=settings.max_search_results
             )
+
+            # Check if we got any results
+            if not results or len(results) == 0:
+                logger.warning(f"No search results found for query: '{state['query']}'")
+                state["raw_results"] = []
+                state["status"] = "failed"
+                state["error"] = "검색 결과를 찾을 수 없습니다. 다른 키워드로 다시 시도해주세요."
+                return state
+
             state["raw_results"] = results
             state["status"] = "search_completed"
+            logger.info(f"Found {len(results)} results")
         except Exception as e:
             logger.error(f"Search failed: {str(e)}")
             state["status"] = "failed"
@@ -45,6 +55,13 @@ def create_research_workflow() -> StateGraph:
         state["status"] = "analyzing"
 
         try:
+            # Check if we have results to analyze
+            if not state.get("raw_results") or len(state["raw_results"]) == 0:
+                logger.error("No search results to analyze")
+                state["status"] = "failed"
+                state["error"] = "분석할 검색 결과가 없습니다."
+                return state
+
             # Combine title and content for embedding
             texts = [
                 f"{r['title']}. {r['content']}"
@@ -57,35 +74,54 @@ def create_research_workflow() -> StateGraph:
 
             # Cluster embeddings
             if len(embeddings) >= 5:  # Need minimum documents for clustering
-                labels = analysis_agent.cluster_embeddings(embeddings, min_cluster_size=3)
+                labels = analysis_agent.cluster_embeddings(embeddings, min_cluster_size=2)
                 state["cluster_labels"] = labels
 
-                # Extract keywords per cluster
-                keywords_map = analysis_agent.extract_cluster_keywords(texts, labels, top_k=5)
+                # Get unique cluster IDs (K-means doesn't have noise, HDBSCAN uses -1 for noise)
+                unique_clusters = sorted([label for label in set(labels) if label != -1])
 
-                # Generate cluster names
-                keywords_list = [keywords_map.get(i, []) for i in range(max(labels) + 1)]
-                cluster_names = insight_agent.generate_cluster_names(keywords_list)
+                # Check if we have any valid clusters
+                if not unique_clusters:
+                    # All points are noise, treat as single cluster
+                    logger.warning("All documents classified as noise, creating single cluster")
+                    state["clusters"] = [{
+                        "id": 0,
+                        "name": state["query"],
+                        "size": len(state["raw_results"]),
+                        "keywords": [],
+                        "documents": state["raw_results"][:3]
+                    }]
+                    state["status"] = "clustering_skipped"
+                else:
+                    # Extract keywords per cluster
+                    keywords_map = analysis_agent.extract_cluster_keywords(texts, labels, top_k=5)
 
-                # Build cluster info
-                clusters = []
-                for cluster_id in range(max(labels) + 1):
-                    cluster_docs = [
-                        state["raw_results"][i]
-                        for i, label in enumerate(labels)
-                        if label == cluster_id
-                    ]
+                    # Generate cluster names only for existing clusters
+                    keywords_list = [keywords_map.get(cluster_id, []) for cluster_id in unique_clusters]
+                    cluster_names = insight_agent.generate_cluster_names(keywords_list)
 
-                    clusters.append({
-                        "id": cluster_id,
-                        "name": cluster_names[cluster_id] if cluster_id < len(cluster_names) else f"Topic {cluster_id}",
-                        "size": len(cluster_docs),
-                        "keywords": keywords_map.get(cluster_id, []),
-                        "documents": cluster_docs[:3]  # Top 3 representative docs
-                    })
+                    # Build cluster info
+                    clusters = []
+                    for idx, cluster_id in enumerate(unique_clusters):
+                        cluster_docs = [
+                            state["raw_results"][i]
+                            for i, label in enumerate(labels)
+                            if label == cluster_id
+                        ]
 
-                state["clusters"] = clusters
-                state["status"] = "clustering_completed"
+                        # Only add clusters that have documents
+                        if cluster_docs:
+                            clusters.append({
+                                "id": int(cluster_id),  # Convert numpy.int32 to Python int
+                                "name": cluster_names[idx] if idx < len(cluster_names) else f"주제 {cluster_id}",
+                                "size": len(cluster_docs),
+                                "keywords": keywords_map.get(cluster_id, []),
+                                "documents": cluster_docs[:3]  # Top 3 representative docs
+                            })
+
+                    state["clusters"] = clusters
+                    state["status"] = "clustering_completed"
+                    logger.info(f"Created {len(clusters)} clusters from {len(unique_clusters)} unique labels")
             else:
                 # Too few results, skip clustering
                 state["clusters"] = [{
@@ -123,6 +159,14 @@ def create_research_workflow() -> StateGraph:
 
         return state
 
+    # Define conditional routing function
+    def should_continue_after_search(state: ResearchState) -> str:
+        """Decide whether to continue to analysis or end."""
+        if state.get("status") == "failed":
+            logger.info("Search failed, skipping analysis and insight generation")
+            return "end"
+        return "continue"
+
     # Build graph
     workflow = StateGraph(ResearchState)
 
@@ -131,9 +175,16 @@ def create_research_workflow() -> StateGraph:
     workflow.add_node("analysis", analysis_node)
     workflow.add_node("insight", insight_node)
 
-    # Define edges
+    # Define edges with conditional routing
     workflow.set_entry_point("search")
-    workflow.add_edge("search", "analysis")
+    workflow.add_conditional_edges(
+        "search",
+        should_continue_after_search,
+        {
+            "continue": "analysis",
+            "end": END
+        }
+    )
     workflow.add_edge("analysis", "insight")
     workflow.add_edge("insight", END)
 

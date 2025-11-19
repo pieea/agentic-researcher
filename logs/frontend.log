@@ -10,3 +10,9 @@
   ➜  Network: use --host to expose
 오후 8:31:22 [vite] hmr update /src/App.tsx, /src/index.css
 오후 8:31:28 [vite] hmr update /src/App.tsx, /src/index.css
+오후 8:34:34 [vite] hmr update /src/App.tsx, /src/index.css
+오후 8:34:56 [vite] hmr update /src/App.tsx, /src/index.css
+오후 8:35:05 [vite] hmr update /src/App.tsx, /src/index.css
+오후 8:40:53 [vite] page reload src/types.ts
+오후 8:41:14 [vite] hmr update /src/App.tsx, /src/index.css
+오후 8:55:09 [vite] hmr update /src/App.tsx, /src/index.css

@@ -196,6 +196,7 @@ async def get_research_result(request_id: str, db: Session = Depends(get_db)):
         "request_id": request_id,
         "query": state.get("query"),
         "status": state.get("status"),
+        "raw_results": state.get("raw_results", []),
         "clusters": state.get("clusters", []),
         "insights": state.get("insights", {}),
         "created_at": db_query.created_at,

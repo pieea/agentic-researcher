@@ -3,6 +3,7 @@ import hdbscan
 import numpy as np
 from typing import List, Dict, Any
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
 import logging
 
 logger = logging.getLogger(__name__)
@@ -29,30 +30,56 @@ class AnalysisAgent:
     def cluster_embeddings(
         self,
         embeddings: np.ndarray,
-        min_cluster_size: int = 3
+        min_cluster_size: int = 2
     ) -> np.ndarray:
         """
-        Cluster embeddings using HDBSCAN.
+        Cluster embeddings using HDBSCAN with K-means fallback.
 
         Args:
             embeddings: NumPy array of embeddings
             min_cluster_size: Minimum cluster size for HDBSCAN
 
         Returns:
-            NumPy array of cluster labels (-1 for noise)
+            NumPy array of cluster labels
         """
         logger.info(f"Clustering {len(embeddings)} embeddings")
+        n_docs = len(embeddings)
 
-        clusterer = hdbscan.HDBSCAN(
-            min_cluster_size=min_cluster_size,
-            metric='euclidean',
-            cluster_selection_method='eom'
+        # Try HDBSCAN first with relaxed parameters
+        try:
+            clusterer = hdbscan.HDBSCAN(
+                min_cluster_size=max(2, min(min_cluster_size, n_docs // 5)),
+                min_samples=1,
+                metric='euclidean',
+                cluster_selection_method='eom'
+            )
+
+            labels = clusterer.fit_predict(embeddings)
+            n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+            noise_count = sum(labels == -1)
+
+            logger.info(f"HDBSCAN found {n_clusters} clusters (noise: {noise_count}/{n_docs})")
+
+            # If HDBSCAN found good clusters, use them
+            if n_clusters >= 2 and noise_count < n_docs * 0.5:
+                return labels
+
+        except Exception as e:
+            logger.warning(f"HDBSCAN failed: {str(e)}, falling back to K-means")
+
+        # Fallback to K-means with dynamic cluster count
+        # Use sqrt(n) as a heuristic for number of clusters
+        n_clusters_kmeans = max(2, min(5, int(np.sqrt(n_docs))))
+        logger.info(f"Using K-means with {n_clusters_kmeans} clusters")
+
+        kmeans = KMeans(
+            n_clusters=n_clusters_kmeans,
+            random_state=42,
+            n_init=10
         )
+        labels = kmeans.fit_predict(embeddings)
 
-        labels = clusterer.fit_predict(embeddings)
-        n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
-
-        logger.info(f"Found {n_clusters} clusters (noise: {sum(labels == -1)})")
+        logger.info(f"K-means created {len(set(labels))} clusters")
         return labels
 
     def extract_cluster_keywords(
