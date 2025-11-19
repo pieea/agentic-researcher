@@ -1,4 +1,4 @@
-import { ResearchRequest, ResearchResponse, ResearchResult } from '../types'
+import { ResearchRequest, ResearchResponse, ResearchResult, ProgressUpdate } from '../types'
 
 const API_BASE = '/api'
 
@@ -34,7 +34,7 @@ export async function getResearchResult(
 
 export function streamResearchProgress(
   requestId: string,
-  onProgress: (status: string) => void,
+  onProgress: (progress: ProgressUpdate) => void,
   onComplete: () => void,
   onError: (error: Error) => void
 ): EventSource {
@@ -44,12 +44,16 @@ export function streamResearchProgress(
 
   eventSource.onmessage = (event) => {
     try {
-      const data = JSON.parse(event.data)
-      onProgress(data.status)
+      const data: ProgressUpdate = JSON.parse(event.data)
+      onProgress(data)
 
       if (data.status === 'completed' || data.status === 'failed') {
         eventSource.close()
-        onComplete()
+        if (data.status === 'completed') {
+          onComplete()
+        } else if (data.error) {
+          onError(new Error(data.error))
+        }
       }
     } catch (error) {
       onError(error as Error)

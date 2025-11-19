@@ -35,8 +35,21 @@ export interface ResearchResult {
 export type ResearchStatus =
   | 'idle'
   | 'searching'
+  | 'search_completed'
   | 'analyzing'
-  | 'clustering'
+  | 'clustering_completed'
+  | 'clustering_skipped'
   | 'generating_insights'
   | 'completed'
   | 'failed'
+
+export interface ProgressUpdate {
+  status: ResearchStatus
+  query?: string
+  message?: string
+  node?: 'search' | 'analysis' | 'insight'
+  results_count?: number
+  clusters_count?: number
+  insights_count?: number
+  error?: string
+}

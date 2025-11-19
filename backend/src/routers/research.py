@@ -47,7 +47,7 @@ async def create_research(
     )
 
 async def execute_workflow(request_id: str, query: str, db: Session):
-    """Execute the research workflow."""
+    """Execute the research workflow with real-time progress updates."""
     try:
         workflow = create_research_workflow()
 
@@ -62,20 +62,32 @@ async def execute_workflow(request_id: str, query: str, db: Session):
         # Store initial state
         active_workflows[request_id] = initial_state
 
-        # Execute workflow (blocking - in production use async or Celery)
-        final_state = workflow.invoke(initial_state)
+        # Execute workflow with streaming to capture intermediate states
+        final_state = None
+        for output in workflow.stream(initial_state):
+            # LangGraph stream returns dict with node name as key
+            # Extract the state from the output
+            for node_name, node_state in output.items():
+                logger.info(f"Node '{node_name}' completed with status: {node_state.get('status')}")
 
-        # Update database
-        db_query = db.query(DBResearchQuery).filter_by(id=int(request_id)).first()
-        if db_query:
-            db_query.status = final_state.get("status", "completed")
-            db.commit()
+                # Update active workflow state in real-time
+                active_workflows[request_id] = node_state
+                final_state = node_state
 
-        # Store final state
-        active_workflows[request_id] = final_state
+        # Update database with final status
+        if final_state:
+            db_query = db.query(DBResearchQuery).filter_by(id=int(request_id)).first()
+            if db_query:
+                db_query.status = final_state.get("status", "completed")
+                db.commit()
 
     except Exception as e:
         logger.error(f"Workflow execution failed for {request_id}: {str(e)}")
+
+        # Update in-memory state
+        if request_id in active_workflows:
+            active_workflows[request_id]["status"] = "failed"
+            active_workflows[request_id]["error"] = str(e)
 
         # Update database
         db_query = db.query(DBResearchQuery).filter_by(id=int(request_id)).first()
@@ -85,10 +97,12 @@ async def execute_workflow(request_id: str, query: str, db: Session):
 
 @router.get("/{request_id}/stream")
 async def stream_progress(request_id: str):
-    """Stream progress updates via SSE."""
+    """Stream progress updates via SSE with detailed node information."""
 
     async def event_generator() -> AsyncGenerator[str, None]:
         """Generate SSE events for progress updates."""
+
+        last_status = None
 
         while True:
             if request_id not in active_workflows:
@@ -98,12 +112,55 @@ async def stream_progress(request_id: str):
             state = active_workflows[request_id]
             status = state.get("status", "unknown")
 
-            yield f"data: {json.dumps({'status': status})}\n\n"
+            # Only send update if status changed or has useful information
+            if status != last_status:
+                progress_data = {
+                    "status": status,
+                    "query": state.get("query"),
+                }
+
+                # Add node-specific details based on current status
+                if status == "searching":
+                    progress_data["message"] = "검색 중..."
+                    progress_data["node"] = "search"
+
+                elif status == "search_completed":
+                    results_count = len(state.get("raw_results", []))
+                    progress_data["message"] = f"검색 완료 ({results_count}개 결과)"
+                    progress_data["node"] = "search"
+                    progress_data["results_count"] = results_count
+
+                elif status == "analyzing":
+                    progress_data["message"] = "데이터 분석 중..."
+                    progress_data["node"] = "analysis"
+
+                elif status in ["clustering_completed", "clustering_skipped"]:
+                    clusters_count = len(state.get("clusters", []))
+                    progress_data["message"] = f"클러스터링 완료 ({clusters_count}개 주제)"
+                    progress_data["node"] = "analysis"
+                    progress_data["clusters_count"] = clusters_count
+
+                elif status == "generating_insights":
+                    progress_data["message"] = "인사이트 생성 중..."
+                    progress_data["node"] = "insight"
+
+                elif status == "completed":
+                    progress_data["message"] = "분석 완료"
+                    progress_data["node"] = "insight"
+                    progress_data["clusters_count"] = len(state.get("clusters", []))
+                    progress_data["insights_count"] = len(state.get("insights", {}).get("insights", []))
+
+                elif status == "failed":
+                    progress_data["message"] = "오류 발생"
+                    progress_data["error"] = state.get("error", "Unknown error")
+
+                yield f"data: {json.dumps(progress_data)}\n\n"
+                last_status = status
 
             if status in ["completed", "failed"]:
                 break
 
-            await asyncio.sleep(1)  # Poll every second
+            await asyncio.sleep(0.5)  # Poll every 500ms for faster updates
 
     return StreamingResponse(
         event_generator(),

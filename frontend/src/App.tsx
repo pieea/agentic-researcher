@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { createResearchRequest, streamResearchProgress, getResearchResult } from './api/research'
-import { ResearchResult, ResearchStatus } from './types'
+import { ResearchResult, ResearchStatus, ProgressUpdate } from './types'
 import { ClusterMap } from './components/ClusterMap'
 import { TrendTimeline } from './components/TrendTimeline'
 
@@ -9,6 +9,7 @@ function App() {
   const [status, setStatus] = useState<ResearchStatus>('idle')
   const [result, setResult] = useState<ResearchResult | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [progress, setProgress] = useState<ProgressUpdate | null>(null)
 
   const handleSearch = async () => {
     if (!query.trim()) return
@@ -16,6 +17,7 @@ function App() {
     setStatus('searching')
     setError(null)
     setResult(null)
+    setProgress(null)
 
     try {
       // Create research request
@@ -24,8 +26,9 @@ function App() {
       // Stream progress updates
       streamResearchProgress(
         response.request_id,
-        (newStatus) => {
-          setStatus(newStatus as ResearchStatus)
+        (progressUpdate) => {
+          setStatus(progressUpdate.status)
+          setProgress(progressUpdate)
         },
         async () => {
           // Fetch final results
@@ -67,9 +70,38 @@ function App() {
           </button>
         </div>
 
-        {status !== 'idle' && status !== 'completed' && (
-          <div className="status">
-            <p>Status: {status}</p>
+        {status !== 'idle' && status !== 'completed' && progress && (
+          <div className="progress-container">
+            <div className="progress-steps">
+              <div className={`step ${progress.node === 'search' || status === 'search_completed' ? 'active' : ''} ${status === 'search_completed' ? 'completed' : ''}`}>
+                <div className="step-icon">🔍</div>
+                <div className="step-label">검색</div>
+                {progress.node === 'search' && progress.results_count && (
+                  <div className="step-detail">{progress.results_count}개 결과</div>
+                )}
+              </div>
+              <div className="step-divider"></div>
+              <div className={`step ${progress.node === 'analysis' || status === 'clustering_completed' || status === 'clustering_skipped' ? 'active' : ''} ${status === 'clustering_completed' || status === 'clustering_skipped' ? 'completed' : ''}`}>
+                <div className="step-icon">📊</div>
+                <div className="step-label">분석</div>
+                {(status === 'clustering_completed' || status === 'clustering_skipped') && progress.clusters_count && (
+                  <div className="step-detail">{progress.clusters_count}개 주제</div>
+                )}
+              </div>
+              <div className="step-divider"></div>
+              <div className={`step ${progress.node === 'insight' ? 'active' : ''} ${status === 'completed' ? 'completed' : ''}`}>
+                <div className="step-icon">💡</div>
+                <div className="step-label">인사이트</div>
+                {status === 'completed' && progress.insights_count && (
+                  <div className="step-detail">{progress.insights_count}개 인사이트</div>
+                )}
+              </div>
+            </div>
+            {progress.message && (
+              <div className="progress-message">
+                {progress.message}
+              </div>
+            )}
           </div>
         )}
 
