@@ -52,3 +52,88 @@ button {
 button:hover {
   background: #0056b3;
 }
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.status {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #e7f3ff;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.error {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background: #ffe7e7;
+  border-radius: 8px;
+  text-align: center;
+  color: #d00;
+}
+
+.results {
+  max-width: 1200px;
+  margin: 2rem auto;
+}
+
+.insights {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+}
+
+.insights h3 {
+  margin-bottom: 1rem;
+}
+
+.insights ul {
+  list-style-position: inside;
+}
+
+.insights li {
+  margin: 0.5rem 0;
+}
+
+.clusters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.cluster-card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.cluster-card h3 {
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.cluster-card p {
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.keywords {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.keyword {
+  background: #e7f3ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  color: #0066cc;
+}
