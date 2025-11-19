@@ -27,7 +27,7 @@ class InsightAgent:
             clusters: List of cluster information (name, size, keywords)
 
         Returns:
-            Dictionary with insights, trends, and summary
+            Dictionary with insights, success cases, failure cases, and market outlook
         """
         logger.info(f"Generating insights for query: {query}")
 
@@ -39,15 +39,28 @@ class InsightAgent:
 
         prompt = ChatPromptTemplate.from_messages([
             ("system", """You are an expert market research analyst.
-            Analyze the following research clusters and provide 3-5 key insights about the topic.
-            Focus on trends, patterns, and actionable takeaways.
-            Be concise and specific."""),
+            Analyze the following research clusters and provide comprehensive market insights.
+            Be specific, data-driven, and actionable."""),
             ("user", """Query: {query}
 
 Clusters found:
 {clusters}
 
-Provide 3-5 key insights as a numbered list.""")
+Please provide a comprehensive analysis in the following format:
+
+## 핵심 인사이트
+(3-5 key insights as numbered list)
+
+## 성공 사례
+(2-3 success stories or best practices)
+
+## 실패 사례
+(2-3 failure cases or lessons learned)
+
+## 향후 시장 전망
+(Market outlook and future trends in 2-3 points)
+
+Use Korean for all sections. Be specific and concise.""")
         ])
 
         try:
@@ -55,17 +68,51 @@ Provide 3-5 key insights as a numbered list.""")
                 prompt.format_messages(query=query, clusters=cluster_summary)
             )
 
-            # Parse insights from response
-            insights_text = response.content
-            insights = [
-                line.strip()
-                for line in insights_text.split('\n')
-                if line.strip() and (line.strip()[0].isdigit() or line.strip().startswith('-'))
-            ]
+            # Parse response into sections
+            content = response.content
+            sections = {
+                "insights": [],
+                "success_cases": [],
+                "failure_cases": [],
+                "market_outlook": []
+            }
+
+            current_section = None
+            for line in content.split('\n'):
+                line = line.strip()
+                if not line:
+                    continue
+
+                # Detect section headers
+                if '핵심 인사이트' in line or 'Key Insights' in line:
+                    current_section = 'insights'
+                elif '성공 사례' in line or '성공사례' in line or 'Success' in line:
+                    current_section = 'success_cases'
+                elif '실패 사례' in line or '실패사례' in line or 'Failure' in line:
+                    current_section = 'failure_cases'
+                elif '향후 시장 전망' in line or '시장 전망' in line or 'Market Outlook' in line:
+                    current_section = 'market_outlook'
+                # Add content to current section
+                elif current_section and (line[0].isdigit() or line.startswith('-') or line.startswith('•')):
+                    # Remove numbering and bullets
+                    clean_line = line.lstrip('0123456789.-•*) ').strip()
+                    if clean_line:
+                        sections[current_section].append(clean_line)
+
+            # Ensure we have at least some content
+            if not sections["insights"]:
+                sections["insights"] = [
+                    f"'{query}' 관련 {len(clusters)}개의 주요 주제 발견",
+                    f"총 {sum(c['size'] for c in clusters)}개 문서 분석",
+                    f"가장 큰 주제: {max(clusters, key=lambda x: x['size'])['name']}"
+                ]
 
             return {
-                "insights": insights,
-                "summary": insights_text,
+                "insights": sections["insights"],
+                "success_cases": sections["success_cases"],
+                "failure_cases": sections["failure_cases"],
+                "market_outlook": sections["market_outlook"],
+                "summary": content,
                 "cluster_count": len(clusters),
                 "total_documents": sum(c['size'] for c in clusters)
             }
@@ -75,10 +122,13 @@ Provide 3-5 key insights as a numbered list.""")
             # Fallback to basic statistics
             return {
                 "insights": [
-                    f"Found {len(clusters)} major topics related to '{query}'",
-                    f"Analyzed {sum(c['size'] for c in clusters)} documents total",
-                    f"Largest topic: {max(clusters, key=lambda x: x['size'])['name']}"
+                    f"'{query}' 관련 {len(clusters)}개의 주요 주제 발견",
+                    f"총 {sum(c['size'] for c in clusters)}개 문서 분석",
+                    f"가장 큰 주제: {max(clusters, key=lambda x: x['size'])['name']}"
                 ],
+                "success_cases": ["상세 분석을 위해서는 LLM이 필요합니다"],
+                "failure_cases": ["상세 분석을 위해서는 LLM이 필요합니다"],
+                "market_outlook": ["상세 분석을 위해서는 LLM이 필요합니다"],
                 "summary": "Basic statistical summary (LLM unavailable)",
                 "cluster_count": len(clusters),
                 "total_documents": sum(c['size'] for c in clusters)

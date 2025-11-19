@@ -223,27 +223,106 @@ function App() {
 
             {/* Key Insights */}
             {result.insights && (
-              <Card className="shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <span className="text-2xl">💡</span>
-                    핵심 인사이트
-                  </CardTitle>
-                  <CardDescription>
-                    AI가 분석한 주요 트렌드와 인사이트
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-3">
-                    {result.insights.insights.map((insight, i) => (
-                      <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
-                        <Badge className="mt-0.5">{i + 1}</Badge>
-                        <span className="text-sm leading-relaxed">{insight}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <div className="space-y-6">
+                {/* 핵심 인사이트 */}
+                <Card className="shadow-lg">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <span className="text-2xl">💡</span>
+                      핵심 인사이트
+                    </CardTitle>
+                    <CardDescription>
+                      AI가 분석한 주요 트렌드와 인사이트
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-3">
+                      {result.insights.insights.map((insight, i) => (
+                        <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                          <Badge className="mt-0.5">{i + 1}</Badge>
+                          <span className="text-sm leading-relaxed">{insight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* 성공사례 & 실패사례 */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {result.insights.success_cases && result.insights.success_cases.length > 0 && (
+                    <Card className="shadow-lg border-green-200 bg-green-50/50">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-green-700">
+                          <span className="text-2xl">✅</span>
+                          성공 사례
+                        </CardTitle>
+                        <CardDescription>
+                          시장에서 검증된 성공 전략
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-3">
+                          {result.insights.success_cases.map((case_item, i) => (
+                            <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white border border-green-200">
+                              <Badge variant="outline" className="mt-0.5 border-green-600 text-green-700">{i + 1}</Badge>
+                              <span className="text-sm leading-relaxed text-gray-700">{case_item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {result.insights.failure_cases && result.insights.failure_cases.length > 0 && (
+                    <Card className="shadow-lg border-red-200 bg-red-50/50">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-red-700">
+                          <span className="text-2xl">⚠️</span>
+                          실패 사례
+                        </CardTitle>
+                        <CardDescription>
+                          피해야 할 함정과 교훈
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="space-y-3">
+                          {result.insights.failure_cases.map((case_item, i) => (
+                            <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white border border-red-200">
+                              <Badge variant="outline" className="mt-0.5 border-red-600 text-red-700">{i + 1}</Badge>
+                              <span className="text-sm leading-relaxed text-gray-700">{case_item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+
+                {/* 향후 시장 전망 */}
+                {result.insights.market_outlook && result.insights.market_outlook.length > 0 && (
+                  <Card className="shadow-lg border-violet-200 bg-gradient-to-br from-violet-50 to-blue-50">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-violet-700">
+                        <span className="text-2xl">🔮</span>
+                        향후 시장 전망
+                      </CardTitle>
+                      <CardDescription>
+                        미래 트렌드와 예측
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <ul className="space-y-3">
+                        {result.insights.market_outlook.map((outlook, i) => (
+                          <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white border border-violet-200">
+                            <Badge variant="outline" className="mt-0.5 border-violet-600 text-violet-700">{i + 1}</Badge>
+                            <span className="text-sm leading-relaxed text-gray-700">{outlook}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             )}
 
             {/* Visualizations */}

@@ -17,6 +17,9 @@ export interface ClusterInfo {
 
 export interface InsightInfo {
   insights: string[]
+  success_cases: string[]
+  failure_cases: string[]
+  market_outlook: string[]
   summary: string
   cluster_count: number
   total_documents: number
