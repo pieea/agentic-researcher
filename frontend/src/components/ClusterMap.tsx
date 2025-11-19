@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from 'recharts'
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
 import { ClusterInfo } from '../types'
 
 interface ClusterMapProps {
@@ -7,50 +7,74 @@ interface ClusterMapProps {
 }
 
 const COLORS = [
-  '#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#8dd1e1',
-  '#d084d0', '#82ca82', '#ffc042', '#ff5042', '#8db1e1'
+  '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
+  '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#6366f1'
 ]
 
 export function ClusterMap({ clusters }: ClusterMapProps) {
-  // Transform clusters to scatter plot data
-  const data = clusters.map((cluster, index) => ({
-    x: index * 100 + Math.random() * 50,
-    y: Math.random() * 100,
-    size: cluster.size * 20,
-    name: cluster.name,
-    cluster: cluster
-  }))
+  if (!clusters || clusters.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-64 text-muted-foreground">
+        <p>클러스터 데이터가 없습니다</p>
+      </div>
+    )
+  }
+
+  // Transform clusters to scatter plot data with better positioning
+  const data = clusters.map((cluster, index) => {
+    const angle = (index * 2 * Math.PI) / clusters.length
+    const radius = 30 + Math.random() * 20
+    return {
+      x: 50 + Math.cos(angle) * radius,
+      y: 50 + Math.sin(angle) * radius,
+      size: Math.max(cluster.size * 50, 100),
+      name: cluster.name,
+      count: cluster.size,
+      cluster: cluster
+    }
+  })
 
   return (
-    <div className="cluster-map">
-      <h3>Cluster Visualization</h3>
+    <ResponsiveContainer width="100%" height={300}>
       <ScatterChart
-        width={800}
-        height={400}
-        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+        margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
       >
-        <CartesianGrid />
-        <XAxis type="number" dataKey="x" name="x" hide />
-        <YAxis type="number" dataKey="y" name="y" hide />
+        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+        <XAxis
+          type="number"
+          dataKey="x"
+          domain={[0, 100]}
+          hide
+        />
+        <YAxis
+          type="number"
+          dataKey="y"
+          domain={[0, 100]}
+          hide
+        />
         <Tooltip
           cursor={{ strokeDasharray: '3 3' }}
           content={({ payload }) => {
             if (!payload || payload.length === 0) return null
             const data = payload[0].payload
             return (
-              <div className="custom-tooltip">
-                <p><strong>{data.name}</strong></p>
-                <p>{data.cluster.size} documents</p>
+              <div className="bg-card border border-border rounded-lg p-3 shadow-lg">
+                <p className="font-semibold text-sm">{data.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">{data.count}개 문서</p>
               </div>
             )
           }}
         />
         <Scatter data={data} fill="#8884d8">
           {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            <Cell
+              key={`cell-${index}`}
+              fill={COLORS[index % COLORS.length]}
+              opacity={0.8}
+            />
           ))}
         </Scatter>
       </ScatterChart>
-    </div>
+    </ResponsiveContainer>
   )
 }
