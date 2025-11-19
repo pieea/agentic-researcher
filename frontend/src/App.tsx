@@ -51,6 +51,20 @@ function App() {
 
   const isLoading = status !== 'idle' && status !== 'completed' && status !== 'failed'
 
+  // Determine which node to display based on status
+  const getCurrentNode = () => {
+    if (!progress) return null
+    if (progress.node) return progress.node
+
+    // Fallback to status-based detection
+    if (['initialized', 'searching', 'search_completed'].includes(status)) return 'search'
+    if (['analyzing', 'clustering_completed', 'clustering_skipped'].includes(status)) return 'analysis'
+    if (['generating_insights'].includes(status)) return 'insight'
+    return null
+  }
+
+  const currentNode = getCurrentNode()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -101,11 +115,11 @@ function App() {
             </div>
 
             {/* Compact Progress Bar */}
-            {isLoading && progress && (
+            {isLoading && progress && currentNode && (
               <div className="mt-4 pt-4 border-t">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    {progress.node === 'search' && (
+                    {currentNode === 'search' && (
                       <>
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center animate-pulse">
                           <span className="text-lg">🔍</span>
@@ -119,7 +133,7 @@ function App() {
                         </div>
                       </>
                     )}
-                    {progress.node === 'analysis' && (
+                    {currentNode === 'analysis' && (
                       <>
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 flex items-center justify-center animate-pulse">
                           <span className="text-lg">📊</span>
@@ -133,7 +147,7 @@ function App() {
                         </div>
                       </>
                     )}
-                    {progress.node === 'insight' && (
+                    {currentNode === 'insight' && (
                       <>
                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-violet-100 flex items-center justify-center animate-pulse">
                           <span className="text-lg">💡</span>

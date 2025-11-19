@@ -120,7 +120,11 @@ async def stream_progress(request_id: str):
                 }
 
                 # Add node-specific details based on current status
-                if status == "searching":
+                if status == "initialized":
+                    progress_data["message"] = "분석 준비 중..."
+                    progress_data["node"] = "search"
+
+                elif status == "searching":
                     progress_data["message"] = "검색 중..."
                     progress_data["node"] = "search"
 
