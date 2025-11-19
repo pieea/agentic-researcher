@@ -8,3 +8,5 @@
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: use --host to expose
+오후 8:31:22 [vite] hmr update /src/App.tsx, /src/index.css
+오후 8:31:28 [vite] hmr update /src/App.tsx, /src/index.css

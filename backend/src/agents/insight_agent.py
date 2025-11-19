@@ -148,8 +148,8 @@ Use Korean for all sections. Be specific and concise.""")
             List of generated cluster names
         """
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are a naming expert. Create concise, descriptive names (2-4 words) for topics based on keywords."),
-            ("user", "Keywords: {keywords}\n\nGenerate a concise topic name:")
+            ("system", "당신은 주제 명명 전문가입니다. 키워드를 바탕으로 간결하고 명확한 한국어 주제명(2-4단어)을 만드세요."),
+            ("user", "키워드: {keywords}\n\n위 키워드들을 대표하는 간결한 한국어 주제명을 생성하세요:")
         ])
 
         names = []
@@ -162,6 +162,6 @@ Use Korean for all sections. Be specific and concise.""")
                 names.append(name)
             except:
                 # Fallback to simple name
-                names.append(f"Topic: {keywords[0] if keywords else 'Unknown'}")
+                names.append(f"주제: {keywords[0] if keywords else '미분류'}")
 
         return names

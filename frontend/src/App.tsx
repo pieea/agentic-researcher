@@ -73,11 +73,11 @@ function App() {
           <div className="inline-flex items-center gap-2 mb-4">
             <TrendingUp className="h-10 w-10 text-primary" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-              Market Research Platform
+              시장 조사 플랫폼
             </h1>
           </div>
           <p className="text-muted-foreground text-lg">
-            AI-powered trend analysis with automatic clustering and insights
+            AI 기반 트렌드 분석 및 자동 클러스터링 인사이트
           </p>
         </header>
 
@@ -89,7 +89,7 @@ function App() {
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Enter topic to research (e.g., 'AI agents', 'sustainable tech')..."
+                  placeholder="조사할 주제를 입력하세요 (예: 'AI 에이전트', '지속가능 기술')..."
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && !isLoading && handleSearch()}
