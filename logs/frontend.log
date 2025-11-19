@@ -3,13 +3,8 @@
 > vite
 
 [33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
-Re-optimizing dependencies because lockfile has changed
 
-  VITE v5.4.21  ready in 337 ms
+  VITE v5.4.21  ready in 382 ms
 
   ➜  Local:   http://localhost:3000/
   ➜  Network: use --host to expose
-오후 8:07:52 [vite] hmr update /src/components/ClusterMap.tsx, /src/index.css
-오후 8:08:12 [vite] hmr update /src/components/TrendTimeline.tsx, /src/index.css
-오후 8:10:57 [vite] page reload src/types.ts
-오후 8:11:29 [vite] hmr update /src/App.tsx, /src/index.css

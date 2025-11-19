@@ -61,6 +61,7 @@ async def execute_workflow(request_id: str, query: str, db: Session):
 
         # Store initial state
         active_workflows[request_id] = initial_state
+        logger.info(f"[{request_id}] Initialized workflow, stored in active_workflows")
 
         # Execute workflow with streaming to capture intermediate states
         final_state = None
@@ -68,11 +69,16 @@ async def execute_workflow(request_id: str, query: str, db: Session):
             # LangGraph stream returns dict with node name as key
             # Extract the state from the output
             for node_name, node_state in output.items():
-                logger.info(f"Node '{node_name}' completed with status: {node_state.get('status')}")
+                current_status = node_state.get('status', 'unknown')
+                logger.info(f"[{request_id}] Node '{node_name}' completed with status: {current_status}")
 
                 # Update active workflow state in real-time
                 active_workflows[request_id] = node_state
+                logger.info(f"[{request_id}] Updated active_workflows with status: {current_status}")
                 final_state = node_state
+
+                # Delay to ensure SSE can catch the update (longer than SSE polling interval)
+                await asyncio.sleep(0.5)
 
         # Update database with final status
         if final_state:
@@ -80,6 +86,7 @@ async def execute_workflow(request_id: str, query: str, db: Session):
             if db_query:
                 db_query.status = final_state.get("status", "completed")
                 db.commit()
+            logger.info(f"[{request_id}] Workflow completed with final status: {final_state.get('status')}")
 
     except Exception as e:
         logger.error(f"Workflow execution failed for {request_id}: {str(e)}")
@@ -164,7 +171,7 @@ async def stream_progress(request_id: str):
             if status in ["completed", "failed"]:
                 break
 
-            await asyncio.sleep(0.5)  # Poll every 500ms for faster updates
+            await asyncio.sleep(0.1)  # Poll every 100ms for real-time updates
 
     return StreamingResponse(
         event_generator(),
