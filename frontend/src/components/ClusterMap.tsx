@@ -1,5 +1,5 @@
 import React from 'react'
-import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from 'recharts'
+import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer, LabelList } from 'recharts'
 import { ClusterInfo } from '../types'
 
 interface ClusterMapProps {
@@ -30,6 +30,7 @@ export function ClusterMap({ clusters }: ClusterMapProps) {
       size: Math.max(cluster.size * 50, 100),
       name: cluster.name,
       count: cluster.size,
+      label: `${cluster.name} (${cluster.size})`,
       cluster: cluster
     }
   })
@@ -73,6 +74,15 @@ export function ClusterMap({ clusters }: ClusterMapProps) {
               opacity={0.8}
             />
           ))}
+          <LabelList
+            dataKey="label"
+            position="top"
+            style={{
+              fontSize: '12px',
+              fontWeight: 600,
+              fill: '#374151'
+            }}
+          />
         </Scatter>
       </ScatterChart>
     </ResponsiveContainer>

@@ -11,5 +11,5 @@ class Settings(BaseSettings):
     tavily_api_key: str
     database_url: str = "sqlite:///./agentic_researcher.db"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    max_search_results: int = 30
+    max_search_results: int = 60
     cache_expiry_hours: int = 24

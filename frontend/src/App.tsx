@@ -83,7 +83,7 @@ function App() {
         </header>
 
         {/* Search Box */}
-        <Card className="mb-8 shadow-lg">
+        <Card className="mb-8 shadow-lg max-w-3xl mx-auto">
           <CardContent className="pt-6">
             <div className="flex gap-3">
               <div className="relative flex-1">
@@ -239,48 +239,6 @@ function App() {
               </Badge>
             </div>
 
-            {/* 전체 출처 목록 */}
-            <Card className="shadow-lg border-slate-200">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <span className="text-2xl">📚</span>
-                  참고 출처
-                </CardTitle>
-                <CardDescription>
-                  분석에 사용된 {result.clusters.reduce((total, c) => total + (c.documents?.length || 0), 0)}개의 원본 문서
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                  {result.clusters.flatMap(cluster =>
-                    (cluster.documents || []).map((doc, idx) => (
-                      <div key={`${cluster.id}-${idx}`} className="p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-primary/50 hover:shadow-sm transition-all">
-                        <a
-                          href={doc.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm font-medium text-primary hover:underline line-clamp-2 block mb-2"
-                        >
-                          {doc.title || '제목 없음'}
-                        </a>
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-1.5 text-xs text-muted-foreground truncate">
-                            <span>🔗</span>
-                            <span className="truncate">
-                              {doc.source || (() => {
-                                try { return new URL(doc.url).hostname } catch { return doc.url }
-                              })()}
-                            </span>
-                          </div>
-                          <Badge variant="outline" className="text-xs shrink-0">{cluster.name}</Badge>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-
             {/* Tavily 원본 검색 결과 */}
             {result.raw_results && result.raw_results.length > 0 && (
               <Card className="shadow-lg border-blue-200">
@@ -364,7 +322,7 @@ function App() {
                       AI가 분석한 주요 트렌드와 인사이트
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="space-y-6">
                     <ul className="space-y-3">
                       {result.insights.insights.map((insight, i) => (
                         <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-primary/5 border border-primary/10">
@@ -373,6 +331,39 @@ function App() {
                         </li>
                       ))}
                     </ul>
+
+                    {/* 참고 자료 */}
+                    <div className="pt-4 border-t">
+                      <div className="group relative inline-block">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground cursor-help">
+                          <span>📚</span>
+                          <span>참고 자료 ({result.clusters.reduce((acc, c) => acc + Math.min((c.documents || []).length, 2), 0)}개)</span>
+                        </div>
+                        {/* 호버 시 나타나는 상세 정보 */}
+                        <div className="invisible group-hover:visible absolute left-0 top-full mt-2 w-[600px] max-h-80 overflow-y-auto bg-white border border-slate-200 rounded-lg shadow-xl z-50 p-4">
+                          <div className="grid md:grid-cols-2 gap-3">
+                            {result.clusters.flatMap(cluster =>
+                              (cluster.documents || []).slice(0, 2).map((doc, idx) => (
+                                <div key={`${cluster.id}-${idx}`} className="p-3 rounded-lg bg-slate-50 border border-slate-200 hover:border-primary/50 hover:shadow-sm transition-all">
+                                  <a
+                                    href={doc.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-sm font-medium text-primary hover:underline line-clamp-2 block mb-2"
+                                  >
+                                    {doc.title || '제목 없음'}
+                                  </a>
+                                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <span>🔗</span>
+                                    <span className="truncate">{doc.source || doc.url}</span>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -389,7 +380,7 @@ function App() {
                           시장에서 검증된 성공 전략
                         </CardDescription>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className="space-y-6">
                         <ul className="space-y-3">
                           {result.insights.success_cases.map((case_item, i) => (
                             <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white border border-green-200">
@@ -398,6 +389,39 @@ function App() {
                             </li>
                           ))}
                         </ul>
+
+                        {/* 참고 자료 */}
+                        <div className="pt-4 border-t border-green-200">
+                          <div className="group relative inline-block">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-green-700 cursor-help">
+                              <span>📚</span>
+                              <span>참고 자료 ({result.clusters.reduce((acc, c) => acc + Math.min((c.documents || []).length, 2), 0)}개)</span>
+                            </div>
+                            {/* 호버 시 나타나는 상세 정보 */}
+                            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 w-[400px] max-h-80 overflow-y-auto bg-white border border-green-200 rounded-lg shadow-xl z-50 p-4">
+                              <div className="space-y-2">
+                                {result.clusters.flatMap(cluster =>
+                                  (cluster.documents || []).slice(0, 2).map((doc, idx) => (
+                                    <div key={`success-${cluster.id}-${idx}`} className="p-2 rounded-lg bg-green-50 border border-green-200 hover:border-green-400 hover:shadow-sm transition-all">
+                                      <a
+                                        href={doc.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs font-medium text-primary hover:underline line-clamp-2 block mb-1"
+                                      >
+                                        {doc.title || '제목 없음'}
+                                      </a>
+                                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                        <span>🔗</span>
+                                        <span className="truncate text-[10px]">{doc.source || doc.url}</span>
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   )}
@@ -413,7 +437,7 @@ function App() {
                           피해야 할 함정과 교훈
                         </CardDescription>
                       </CardHeader>
-                      <CardContent>
+                      <CardContent className="space-y-6">
                         <ul className="space-y-3">
                           {result.insights.failure_cases.map((case_item, i) => (
                             <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white border border-red-200">
@@ -422,6 +446,39 @@ function App() {
                             </li>
                           ))}
                         </ul>
+
+                        {/* 참고 자료 */}
+                        <div className="pt-4 border-t border-red-200">
+                          <div className="group relative inline-block">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-red-700 cursor-help">
+                              <span>📚</span>
+                              <span>참고 자료 ({result.clusters.reduce((acc, c) => acc + Math.min((c.documents || []).length, 2), 0)}개)</span>
+                            </div>
+                            {/* 호버 시 나타나는 상세 정보 */}
+                            <div className="invisible group-hover:visible absolute left-0 top-full mt-2 w-[400px] max-h-80 overflow-y-auto bg-white border border-red-200 rounded-lg shadow-xl z-50 p-4">
+                              <div className="space-y-2">
+                                {result.clusters.flatMap(cluster =>
+                                  (cluster.documents || []).slice(0, 2).map((doc, idx) => (
+                                    <div key={`failure-${cluster.id}-${idx}`} className="p-2 rounded-lg bg-red-50 border border-red-200 hover:border-red-400 hover:shadow-sm transition-all">
+                                      <a
+                                        href={doc.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs font-medium text-primary hover:underline line-clamp-2 block mb-1"
+                                      >
+                                        {doc.title || '제목 없음'}
+                                      </a>
+                                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                                        <span>🔗</span>
+                                        <span className="truncate text-[10px]">{doc.source || doc.url}</span>
+                                      </div>
+                                    </div>
+                                  ))
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </CardContent>
                     </Card>
                   )}
@@ -439,7 +496,7 @@ function App() {
                         미래 트렌드와 예측
                       </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="space-y-6">
                       <ul className="space-y-3">
                         {result.insights.market_outlook.map((outlook, i) => (
                           <li key={i} className="flex items-start gap-3 p-3 rounded-lg bg-white border border-violet-200">
@@ -448,6 +505,39 @@ function App() {
                           </li>
                         ))}
                       </ul>
+
+                      {/* 참고 자료 */}
+                      <div className="pt-4 border-t border-violet-200">
+                        <div className="group relative inline-block">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-violet-700 cursor-help">
+                            <span>📚</span>
+                            <span>참고 자료 ({result.clusters.reduce((acc, c) => acc + Math.min((c.documents || []).length, 2), 0)}개)</span>
+                          </div>
+                          {/* 호버 시 나타나는 상세 정보 */}
+                          <div className="invisible group-hover:visible absolute left-0 top-full mt-2 w-[600px] max-h-80 overflow-y-auto bg-white border border-violet-200 rounded-lg shadow-xl z-50 p-4">
+                            <div className="grid md:grid-cols-2 gap-3">
+                              {result.clusters.flatMap(cluster =>
+                                (cluster.documents || []).slice(0, 2).map((doc, idx) => (
+                                  <div key={`outlook-${cluster.id}-${idx}`} className="p-3 rounded-lg bg-violet-50 border border-violet-200 hover:border-violet-400 hover:shadow-sm transition-all">
+                                    <a
+                                      href={doc.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-sm font-medium text-primary hover:underline line-clamp-2 block mb-2"
+                                    >
+                                      {doc.title || '제목 없음'}
+                                    </a>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      <span>🔗</span>
+                                      <span className="truncate">{doc.source || doc.url}</span>
+                                    </div>
+                                  </div>
+                                ))
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </CardContent>
                   </Card>
                 )}
