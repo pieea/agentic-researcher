@@ -1,6 +1,7 @@
 from tavily import TavilyClient
 from typing import List, Dict, Any
-from datetime import datetime, timedelta
+from datetime import datetime
+from urllib.parse import urlparse
 import logging
 
 logger = logging.getLogger(__name__)
@@ -69,13 +70,14 @@ class SearchAgent:
                 return 1.2  # Last week: 20% boost
             else:
                 return 1.0  # Older: no boost
-        except:
+        except (ValueError, AttributeError, TypeError) as e:
+            logger.debug(f"Failed to parse date '{published_date}': {e}")
             return 1.0
 
     def _extract_domain(self, url: str) -> str:
         """Extract domain name from URL."""
         try:
-            from urllib.parse import urlparse
             return urlparse(url).netloc
-        except:
+        except (ValueError, AttributeError) as e:
+            logger.debug(f"Failed to extract domain from '{url}': {e}")
             return "unknown"
