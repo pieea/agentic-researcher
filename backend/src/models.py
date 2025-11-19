@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, JSON, Text
 from sqlalchemy.orm import relationship
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from src.database import Base
 
 class ResearchQuery(Base):
@@ -8,8 +8,8 @@ class ResearchQuery(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     query = Column(String, index=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    expires_at = Column(DateTime, default=lambda: datetime.utcnow() + timedelta(hours=24), nullable=False)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    expires_at = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(hours=24), nullable=False)
     status = Column(String, default="processing", nullable=False)  # processing, completed, failed
 
     search_results = relationship("SearchResult", back_populates="query")
