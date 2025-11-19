@@ -26,7 +26,7 @@ AI-powered market research platform that analyzes trends using Tavily search, La
 - Vite
 - Recharts (visualizations)
 
-## Setup
+## Quick Start
 
 ### Prerequisites
 
@@ -35,7 +35,38 @@ AI-powered market research platform that analyzes trends using Tavily search, La
 - OpenAI API key
 - Tavily API key
 
-### Backend Setup
+### One-Command Startup
+
+```bash
+# 1. Set up environment variables
+cp backend/.env.example backend/.env
+# Edit backend/.env with your API keys
+
+# 2. Start everything (Unix/Mac)
+./start.sh
+
+# Or on Windows
+start.bat
+```
+
+The startup script will automatically:
+- Install backend dependencies (if needed)
+- Install frontend dependencies (if needed)
+- Start backend server on port 8000
+- Start frontend server on port 3000
+- Display all service URLs
+
+To stop all servers:
+```bash
+./stop.sh
+```
+
+### Manual Setup (Alternative)
+
+<details>
+<summary>Click to expand manual setup instructions</summary>
+
+#### Backend Setup
 
 ```bash
 cd backend
@@ -45,13 +76,15 @@ cp .env.example .env
 uv run uvicorn src.main:app --reload
 ```
 
-### Frontend Setup
+#### Frontend Setup
 
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
+</details>
 
 ## Usage
 
