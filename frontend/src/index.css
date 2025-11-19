@@ -137,3 +137,60 @@ button:disabled {
   font-size: 0.875rem;
   color: #0066cc;
 }
+
+.visualizations {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.cluster-map,
+.trend-timeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cluster-map h3,
+.trend-timeline h3 {
+  margin-bottom: 1rem;
+}
+
+.custom-tooltip {
+  background: white;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.documents {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eee;
+}
+
+.document {
+  margin: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.document a {
+  color: #0066cc;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.document a:hover {
+  text-decoration: underline;
+}
+
+.source {
+  font-size: 0.75rem;
+  color: #999;
+}

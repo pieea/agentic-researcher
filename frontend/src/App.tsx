@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { createResearchRequest, streamResearchProgress, getResearchResult } from './api/research'
 import { ResearchResult, ResearchStatus } from './types'
+import { ClusterMap } from './components/ClusterMap'
+import { TrendTimeline } from './components/TrendTimeline'
 
 function App() {
   const [query, setQuery] = useState('')
@@ -80,7 +82,6 @@ function App() {
         {result && (
           <div className="results">
             <h2>Results for: {result.query}</h2>
-            <p>Found {result.clusters.length} topics</p>
 
             {result.insights && (
               <div className="insights">
@@ -93,6 +94,11 @@ function App() {
               </div>
             )}
 
+            <div className="visualizations">
+              <ClusterMap clusters={result.clusters} />
+              <TrendTimeline clusters={result.clusters} />
+            </div>
+
             <div className="clusters">
               {result.clusters.map((cluster) => (
                 <div key={cluster.id} className="cluster-card">
@@ -101,6 +107,16 @@ function App() {
                   <div className="keywords">
                     {cluster.keywords.map((kw, i) => (
                       <span key={i} className="keyword">{kw}</span>
+                    ))}
+                  </div>
+                  <div className="documents">
+                    {cluster.documents.slice(0, 3).map((doc, i) => (
+                      <div key={i} className="document">
+                        <a href={doc.url} target="_blank" rel="noopener noreferrer">
+                          {doc.title}
+                        </a>
+                        <span className="source">{doc.source}</span>
+                      </div>
                     ))}
                   </div>
                 </div>
